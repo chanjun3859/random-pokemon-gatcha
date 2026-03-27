@@ -30,6 +30,16 @@
     ]
   },
   {
+    "id": 4,
+    "name": "파이리",
+    "forms": [
+      {
+        "formName": "일반",
+        "img": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/4.png"
+      }
+    ]
+  },
+  {
     "id": 901,
     "name": "다투곰",
     "forms": [
