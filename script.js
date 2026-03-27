@@ -43,19 +43,25 @@ async function drawPokemon() {
     }
 }
 
-// 최종 포켓몬 확정 함수
 function finishDraw(list, imgTag, infoTag, formTag) {
     const finalPoke = list[Math.floor(Math.random() * list.length)];
-    const finalForm = finalPoke.forms[Math.floor(Math.random() * finalPoke.forms.length)];
+    const formIdx = Math.floor(Math.random() * finalPoke.forms.length); // 몇 번째 폼인지 인덱스 추출
+    const finalForm = finalPoke.forms[formIdx];
+
+    // suffix 대신 인덱스(0, 1, 2...)를 알파벳(a, b, c...)으로 변환
+    const autoSuffix = String.fromCharCode(97 + formIdx); 
 
     imgTag.src = finalForm.img;
-    imgTag.style.opacity = '1'; // 다시 선명하게
-    infoTag.innerText = `${finalPoke.id}(${finalForm.suffix}) - ${finalPoke.name}`;
+    imgTag.style.opacity = '1';
+    
+    // suffix 변수 대신 autoSuffix 사용
+    infoTag.innerText = `${finalPoke.id}(${autoSuffix}) - ${finalPoke.name}`;
     formTag.innerText = finalForm.formName !== "일반" ? `[${finalForm.formName}]` : "";
     
-    // 화면에 흔들리는 효과(진동) 추가 (CSS 필요)
     imgTag.classList.add('bounce');
     setTimeout(() => imgTag.classList.remove('bounce'), 500);
     
-    isRolling = false; // 다시 클릭 가능하게 변경
+    isRolling = false;
+    const btn = document.querySelector('button');
+    btn.disabled = false;
 }
