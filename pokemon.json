@@ -1,0 +1,29 @@
+[
+  {
+    "id": 901,
+    "name": "다투곰",
+    "forms": [
+      {
+        "suffix": "a",
+        "formName": "일반",
+        "img": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/901.png"
+      },
+      {
+        "suffix": "b",
+        "formName": "붉은 달",
+        "img": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/10272.png"
+      }
+    ]
+  },
+  {
+    "id": 472,
+    "name": "글라이온",
+    "forms": [
+      {
+        "suffix": "a",
+        "formName": "일반",
+        "img": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/472.png"
+      }
+    ]
+  }
+]
