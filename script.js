@@ -1,32 +1,61 @@
+let isRolling = false; // 중복 클릭 방지 변수
+
 async function drawPokemon() {
+    if (isRolling) return; // 이미 뽑는 중이면 무시
+    
     try {
-        // 1. JSON 데이터 가져오기
         const response = await fetch('pokemon.json');
-        if (!response.ok) throw new Error('데이터를 불러올 수 없습니다.');
         const pokemonList = await response.json();
-
-        // 2. 전체 리스트 중 랜덤하게 한 마리 선택
-        const randomIdx = Math.floor(Math.random() * pokemonList.length);
-        const pokemon = pokemonList[randomIdx];
-
-        // 3. 해당 포켓몬의 폼(form) 중 랜덤하게 하나 선택 (a, b 등)
-        const formIdx = Math.floor(Math.random() * pokemon.forms.length);
-        const selectedForm = pokemon.forms[formIdx];
-
-        // 4. 화면 업데이트
+        
         const imgTag = document.getElementById('poke-img');
         const infoTag = document.getElementById('poke-info');
         const formTag = document.getElementById('form-info');
 
-        imgTag.src = selectedForm.img;
-        imgTag.style.display = 'block'; // 이미지 보이기
-        infoTag.innerText = `${pokemon.id}(${selectedForm.suffix}) - ${pokemon.name}`;
+        isRolling = true;
+        imgTag.style.display = 'block';
+        imgTag.style.opacity = '0.5'; // 돌아가는 동안 살짝 투명하게
         
-        // 폼 이름이 '일반'이 아닐 때만 폼 명칭 표시 (예: 붉은 달)
-        formTag.innerText = selectedForm.formName !== "일반" ? `[${selectedForm.formName}]` : "";
+        let counter = 0;
+        const totalSpins = 20; // 총 몇 번 이미지가 바뀔지
+        
+        // --- 애니메이션 시작 ---
+        const spinInterval = setInterval(() => {
+            // 셔플 중에는 아무 포켓몬이나 랜덤하게 보여줌
+            const tempPoke = pokemonList[Math.floor(Math.random() * pokemonList.length)];
+            const tempForm = tempPoke.forms[Math.floor(Math.random() * tempPoke.forms.length)];
+            
+            imgTag.src = tempForm.img;
+            infoTag.innerText = "과연... 🤔";
+            formTag.innerText = "";
+            
+            counter++;
+            
+            // 지정된 횟수만큼 돌았다면 멈춤
+            if (counter >= totalSpins) {
+                clearInterval(spinInterval);
+                finishDraw(pokemonList, imgTag, infoTag, formTag);
+            }
+        }, 80); // 0.08초마다 교체
 
     } catch (error) {
         console.error(error);
-        alert("데이터 로딩 중 오류가 발생했습니다.");
+        alert("데이터를 불러오지 못했습니다.");
     }
+}
+
+// 최종 포켓몬 확정 함수
+function finishDraw(list, imgTag, infoTag, formTag) {
+    const finalPoke = list[Math.floor(Math.random() * list.length)];
+    const finalForm = finalPoke.forms[Math.floor(Math.random() * finalPoke.forms.length)];
+
+    imgTag.src = finalForm.img;
+    imgTag.style.opacity = '1'; // 다시 선명하게
+    infoTag.innerText = `${finalPoke.id}(${finalForm.suffix}) - ${finalPoke.name}`;
+    formTag.innerText = finalForm.formName !== "일반" ? `[${finalForm.formName}]` : "";
+    
+    // 화면에 흔들리는 효과(진동) 추가 (CSS 필요)
+    imgTag.classList.add('bounce');
+    setTimeout(() => imgTag.classList.remove('bounce'), 500);
+    
+    isRolling = false; // 다시 클릭 가능하게 변경
 }
