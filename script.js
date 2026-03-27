@@ -10,23 +10,26 @@ async function drawPokemon() {
 
     try {
         const response = await fetch('pokemon.json');
-        if (!response.ok) throw new Error('데이터 로드 실패');
         const pokemonList = await response.json();
 
         isRolling = true;
         btn.disabled = true;
         
         imgTag.style.display = 'block';
-        imgTag.style.opacity = '0.4'; // 셔플 중에는 더 흐릿하게 설정
+        imgTag.style.opacity = '0.4'; 
         
         let counter = 0;
-        const totalSpins = 25; // 셔플 횟수를 약간 늘려 박진감 추가
+        const totalSpins = 25; 
         
+        // 셔플용 변수를 미리 선언해서 밖에서도 쓸 수 있게 합니다.
+        let lastPoke, lastForm;
+
         const spinInterval = setInterval(() => {
-            const tempPoke = pokemonList[Math.floor(Math.random() * pokemonList.length)];
-            const tempForm = tempPoke.forms[Math.floor(Math.random() * tempPoke.forms.length)];
+            // 매 순간 랜덤하게 뽑아서 저장
+            lastPoke = pokemonList[Math.floor(Math.random() * pokemonList.length)];
+            lastForm = lastPoke.forms[Math.floor(Math.random() * lastPoke.forms.length)];
             
-            imgTag.src = tempForm.img;
+            imgTag.src = lastForm.img;
             infoTag.innerText = "분석 중... 🤔";
             formTag.innerText = "";
             
@@ -34,40 +37,32 @@ async function drawPokemon() {
             
             if (counter >= totalSpins) {
                 clearInterval(spinInterval);
-                // 셔플이 완전히 멈춘 뒤 최종 결과 도출
-                finishDraw(pokemonList, imgTag, infoTag, formTag, btn);
+                // 셔플 마지막에 뽑혔던 'lastPoke'와 'lastForm'을 그대로 결과 함수로 보냄!
+                finishDraw(lastPoke, lastForm, imgTag, infoTag, formTag, btn);
             }
-        }, 70); // 속도를 살짝 높임 (0.07초)
+        }, 70);
 
     } catch (error) {
         console.error(error);
-        alert("데이터를 불러오는 중 문제가 발생했습니다.");
         isRolling = false;
         btn.disabled = false;
     }
 }
 
-function finishDraw(list, imgTag, infoTag, formTag, btn) {
-    const finalPoke = list[Math.floor(Math.random() * list.length)];
-    const formIdx = Math.floor(Math.random() * finalPoke.forms.length);
-    const finalForm = finalPoke.forms[formIdx];
-
-    // 1. 최종 결과값 할당
-    imgTag.src = finalForm.img;
-    
-    // 2. 불투명도를 즉시 1로 변경 (CSS transition 덕분에 부드럽게 보임)
+// 이제 list 전체를 받지 않고, 당첨된 데이터만 받습니다.
+function finishDraw(finalPoke, finalForm, imgTag, infoTag, formTag, btn) {
+    // 셔플 마지막 이미지를 그대로 유지 (src를 다시 바꿀 필요가 없음)
     imgTag.style.opacity = '1';
     
-    // 3. 텍스트 업데이트
+    // 정보 업데이트
     infoTag.innerText = `No.${finalPoke.id} - ${finalPoke.name}`;
     formTag.innerText = finalForm.formName !== "일반" ? `[${finalForm.formName}]` : "";
     
-    // 4. 연출 애니메이션 (bounce)
-    imgTag.classList.remove('bounce'); // 이전 애니메이션 제거
-    void imgTag.offsetWidth; // 리플로우 강제 발생 (애니메이션 재시작용)
+    // 연출 애니메이션
+    imgTag.classList.remove('bounce');
+    void imgTag.offsetWidth; 
     imgTag.classList.add('bounce');
     
-    // 5. 상태 초기화
     setTimeout(() => {
         isRolling = false;
         btn.disabled = false;
