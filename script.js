@@ -3,6 +3,8 @@ let isRolling = false; // 중복 클릭 방지 변수
 async function drawPokemon() {
     if (isRolling) return; // 이미 뽑는 중이면 무시
     
+    const btn = document.querySelector('button'); // 버튼 가져오기
+    
     try {
         const response = await fetch('pokemon.json');
         const pokemonList = await response.json();
@@ -12,6 +14,7 @@ async function drawPokemon() {
         const formTag = document.getElementById('form-info');
 
         isRolling = true;
+        btn.disabled = true; // 애니메이션 시작 시 버튼 비활성화
         imgTag.style.display = 'block';
         imgTag.style.opacity = '0.5'; // 돌아가는 동안 살짝 투명하게
         
@@ -33,35 +36,36 @@ async function drawPokemon() {
             // 지정된 횟수만큼 돌았다면 멈춤
             if (counter >= totalSpins) {
                 clearInterval(spinInterval);
-                finishDraw(pokemonList, imgTag, infoTag, formTag);
+                finishDraw(pokemonList, imgTag, infoTag, formTag, btn);
             }
         }, 80); // 0.08초마다 교체
 
     } catch (error) {
         console.error(error);
         alert("데이터를 불러오지 못했습니다.");
+        isRolling = false;
+        btn.disabled = false;
     }
 }
 
-function finishDraw(list, imgTag, infoTag, formTag) {
+function finishDraw(list, imgTag, infoTag, formTag, btn) {
     const finalPoke = list[Math.floor(Math.random() * list.length)];
-    const formIdx = Math.floor(Math.random() * finalPoke.forms.length); // 몇 번째 폼인지 인덱스 추출
+    const formIdx = Math.floor(Math.random() * finalPoke.forms.length); 
     const finalForm = finalPoke.forms[formIdx];
 
-    // suffix 대신 인덱스(0, 1, 2...)를 알파벳(a, b, c...)으로 변환
-    const autoSuffix = String.fromCharCode(97 + formIdx); 
-
+    // --- 수정 포인트: autoSuffix 계산 및 표시 로직 삭제 ---
     imgTag.src = finalForm.img;
     imgTag.style.opacity = '1';
     
-    // suffix 변수 대신 autoSuffix 사용
-    infoTag.innerText = `${finalPoke.id}(${autoSuffix}) - ${finalPoke.name}`;
+    // 번호와 이름만 표시하도록 변경
+    infoTag.innerText = `No.${finalPoke.id} - ${finalPoke.name}`;
+    
+    // 폼 이름이 '일반'이 아닐 때만 괄호로 아래에 표시 (예: [붉은 달])
     formTag.innerText = finalForm.formName !== "일반" ? `[${finalForm.formName}]` : "";
     
     imgTag.classList.add('bounce');
     setTimeout(() => imgTag.classList.remove('bounce'), 500);
     
     isRolling = false;
-    const btn = document.querySelector('button');
-    btn.disabled = false;
+    btn.disabled = false; // 뽑기 완료 후 버튼 다시 활성화
 }
