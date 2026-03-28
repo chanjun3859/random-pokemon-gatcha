@@ -30,7 +30,7 @@ async function drawPokemon() {
             lastForm = lastPoke.forms[Math.floor(Math.random() * lastPoke.forms.length)];
             
             imgTag.src = lastForm.img;
-            infoTag.innerText = "분석 중... 🤔";
+            infoTag.innerText = "누가 나올까...? 🤔";
             formTag.innerText = "";
             
             counter++;
